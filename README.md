@@ -15,6 +15,7 @@ and a Github repository [jwt-spring-security-demo](https://github.com/szerhusenB
 - JSON Web Tokens
 - Eclipselink
 - JUnit Jupiter 5
+- JSR 380 Validation API
 
 The project uses Maven 3.x and is built using Java 10.
 
