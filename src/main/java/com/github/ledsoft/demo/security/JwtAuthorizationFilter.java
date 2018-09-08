@@ -1,7 +1,7 @@
 package com.github.ledsoft.demo.security;
 
 import com.github.ledsoft.demo.security.model.DemoUserDetails;
-import com.github.ledsoft.demo.service.security.UserDetailsServiceImpl;
+import com.github.ledsoft.demo.service.security.AppUserDetailsService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -19,10 +19,10 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final JwtUtils jwtUtils;
 
-    private final UserDetailsServiceImpl userDetailsService;
+    private final AppUserDetailsService userDetailsService;
 
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtUtils jwtUtils,
-                                  UserDetailsServiceImpl userDetailsService) {
+                                  AppUserDetailsService userDetailsService) {
         super(authenticationManager);
         this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;

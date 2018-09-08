@@ -1,7 +1,7 @@
 package com.github.ledsoft.demo.config;
 
 import com.github.ledsoft.demo.security.*;
-import com.github.ledsoft.demo.service.security.UserDetailsServiceImpl;
+import com.github.ledsoft.demo.service.security.AppUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtUtils jwtUtils;
 
-    private final UserDetailsServiceImpl userDetailsService;
+    private final AppUserDetailsService userDetailsService;
 
     @Autowired
     public SecurityConfig(AuthenticationProvider authenticationProvider,
@@ -38,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                           AuthenticationSuccess authenticationSuccessHandler,
                           AuthenticationFailureHandler authenticationFailureHandler,
                           JwtUtils jwtUtils,
-                          UserDetailsServiceImpl userDetailsService) {
+                          AppUserDetailsService userDetailsService) {
         this.authenticationProvider = authenticationProvider;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.authenticationSuccessHandler = authenticationSuccessHandler;
