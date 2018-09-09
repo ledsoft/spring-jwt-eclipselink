@@ -4,23 +4,21 @@ public class SecurityConstants {
 
     public static final String SECURITY_CHECK_URI = "/j_spring_security_check";
 
-    public static final int SESSION_TIMEOUT = 30 * 60 * 1000;
+    /**
+     * Set a short (more secure) token expiration timeout.
+     */
+    public static final int TOKEN_EXPIRATION_TIMEOUT = 10 * 60 * 1000;
 
     /**
      * Header specifying which security-related headers should be accessible to the client application in browser.
      * <p>
-     * This header's value must include the authentication header ({@link #AUTHENTICATION_HEADER}), otherwise,
-     * application is not able to extract the authentication token from response.
+     * This header's value must include the Authorization header, otherwise,
+     * client JS application may not able to extract the authentication token from response.
      */
     public static final String EXPOSE_HEADERS_HEADER = "Access-Control-Expose-Headers";
 
     /**
-     * Request/response header used to store authentication info.
-     */
-    public static final String AUTHENTICATION_HEADER = "Authentication";
-
-    /**
-     * String prefix added to JWT tokens in the {@link #AUTHENTICATION_HEADER}.
+     * String prefix added to JWT tokens in the {@link org.springframework.http.HttpHeaders#AUTHORIZATION} header.
      */
     public static final String JWT_TOKEN_PREFIX = "Bearer ";
 

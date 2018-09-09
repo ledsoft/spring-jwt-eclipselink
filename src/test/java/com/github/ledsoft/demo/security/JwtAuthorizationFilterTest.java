@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -81,7 +82,7 @@ class JwtAuthorizationFilterTest {
 
     private void generateJwtIntoRequest() {
         final String token = generateJwt();
-        mockRequest.addHeader(SecurityConstants.AUTHENTICATION_HEADER, SecurityConstants.JWT_TOKEN_PREFIX + token);
+        mockRequest.addHeader(HttpHeaders.AUTHORIZATION, SecurityConstants.JWT_TOKEN_PREFIX + token);
     }
 
     private String generateJwt() {
@@ -90,6 +91,15 @@ class JwtAuthorizationFilterTest {
                    .setIssuedAt(new Date())
                    .setExpiration(new Date(System.currentTimeMillis() + 10000))
                    .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET).compact();
+    }
+
+    @Test
+    void doFilterInternalErasesUserCredentialsAfterSuccessfulAuthorization() throws Exception {
+        generateJwtIntoRequest();
+
+        sut.doFilterInternal(mockRequest, mockResponse, chainMock);
+        final User result = SecurityUtils.getCurrentUser();
+        assertNull(result.getPassword());
     }
 
     @Test
@@ -110,7 +120,7 @@ class JwtAuthorizationFilterTest {
     @Test
     void doFilterInternalLeavesEmptySecurityContextAndPassesRequestDownChainWhenAuthenticationHasIncorrectFormat()
             throws Exception {
-        mockRequest.addHeader(SecurityConstants.AUTHENTICATION_HEADER, generateJwt());
+        mockRequest.addHeader(HttpHeaders.AUTHORIZATION, generateJwt());
         sut.doFilterInternal(mockRequest, mockResponse, chainMock);
         verify(chainMock).doFilter(mockRequest, mockResponse);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
@@ -120,9 +130,9 @@ class JwtAuthorizationFilterTest {
     void doFilterInternalRefreshesUserTokenOnSuccessfulAuthorization() throws Exception {
         generateJwtIntoRequest();
         sut.doFilterInternal(mockRequest, mockResponse, chainMock);
-        assertTrue(mockResponse.containsHeader(SecurityConstants.AUTHENTICATION_HEADER));
-        assertNotEquals(mockRequest.getHeader(SecurityConstants.AUTHENTICATION_HEADER),
-                mockResponse.getHeader(SecurityConstants.AUTHENTICATION_HEADER));
+        assertTrue(mockResponse.containsHeader(HttpHeaders.AUTHORIZATION));
+        assertNotEquals(mockRequest.getHeader(HttpHeaders.AUTHORIZATION),
+                mockResponse.getHeader(HttpHeaders.AUTHORIZATION));
         verify(jwtUtilsSpy).refreshToken(any());
     }
 
@@ -133,7 +143,7 @@ class JwtAuthorizationFilterTest {
                                  .setIssuedAt(new Date())
                                  .setExpiration(new Date(System.currentTimeMillis() - 10000))
                                  .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET).compact();
-        mockRequest.addHeader(SecurityConstants.AUTHENTICATION_HEADER, SecurityConstants.JWT_TOKEN_PREFIX + token);
+        mockRequest.addHeader(HttpHeaders.AUTHORIZATION, SecurityConstants.JWT_TOKEN_PREFIX + token);
         sut.doFilterInternal(mockRequest, mockResponse, chainMock);
         verify(chainMock, never()).doFilter(mockRequest, mockResponse);
         assertEquals(HttpStatus.UNAUTHORIZED.value(), mockResponse.getStatus());
@@ -148,7 +158,7 @@ class JwtAuthorizationFilterTest {
                                  .setIssuedAt(new Date())
                                  .setExpiration(new Date(System.currentTimeMillis() + 10000))
                                  .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET).compact();
-        mockRequest.addHeader(SecurityConstants.AUTHENTICATION_HEADER, SecurityConstants.JWT_TOKEN_PREFIX + token);
+        mockRequest.addHeader(HttpHeaders.AUTHORIZATION, SecurityConstants.JWT_TOKEN_PREFIX + token);
         sut.doFilterInternal(mockRequest, mockResponse, chainMock);
         verify(chainMock, never()).doFilter(mockRequest, mockResponse);
         assertEquals(HttpStatus.BAD_REQUEST.value(), mockResponse.getStatus());

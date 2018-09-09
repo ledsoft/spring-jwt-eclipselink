@@ -77,7 +77,7 @@ class JwtUtilsTest {
                                  .setId(user.getId().toString())
                                  .setIssuedAt(new Date())
                                  .setExpiration(
-                                         new Date(System.currentTimeMillis() + SecurityConstants.SESSION_TIMEOUT))
+                                         new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION_TIMEOUT))
                                  .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET).compact();
 
         final DemoUserDetails result = sut.extractUserInfo(token);
@@ -91,7 +91,7 @@ class JwtUtilsTest {
                                  .setId(user.getId().toString())
                                  .setIssuedAt(new Date())
                                  .setExpiration(
-                                         new Date(System.currentTimeMillis() + SecurityConstants.SESSION_TIMEOUT))
+                                         new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION_TIMEOUT))
                                  .claim(SecurityConstants.JWT_ROLE_CLAIM,
                                          String.join(SecurityConstants.JWT_ROLE_DELIMITER, ROLES))
                                  .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET).compact();
@@ -113,7 +113,7 @@ class JwtUtilsTest {
                                  .setId("_:123")
                                  .setIssuedAt(new Date())
                                  .setExpiration(
-                                         new Date(System.currentTimeMillis() + SecurityConstants.SESSION_TIMEOUT))
+                                         new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION_TIMEOUT))
                                  .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET).compact();
         assertThrows(JwtException.class, () -> sut.extractUserInfo(token));
     }
@@ -123,7 +123,7 @@ class JwtUtilsTest {
         final String token = Jwts.builder().setId(user.getId().toString())
                                  .setIssuedAt(new Date())
                                  .setExpiration(
-                                         new Date(System.currentTimeMillis() + SecurityConstants.SESSION_TIMEOUT))
+                                         new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION_TIMEOUT))
                                  .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET).compact();
         final IncompleteJwtException ex = assertThrows(IncompleteJwtException.class, () -> sut.extractUserInfo(token));
         assertThat(ex.getMessage(), containsString("subject"));
@@ -134,7 +134,7 @@ class JwtUtilsTest {
         final String token = Jwts.builder().setSubject(user.getUsername())
                                  .setIssuedAt(new Date())
                                  .setExpiration(
-                                         new Date(System.currentTimeMillis() + SecurityConstants.SESSION_TIMEOUT))
+                                         new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION_TIMEOUT))
                                  .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET).compact();
         final IncompleteJwtException ex = assertThrows(IncompleteJwtException.class, () -> sut.extractUserInfo(token));
         assertThat(ex.getMessage(), containsString("id"));
@@ -165,7 +165,7 @@ class JwtUtilsTest {
         final String token = Jwts.builder().setSubject(user.getUsername())
                                  .setId(user.getId().toString())
                                  .setIssuedAt(oldIssueDate)
-                                 .setExpiration(new Date(oldIssueDate.getTime() + SecurityConstants.SESSION_TIMEOUT))
+                                 .setExpiration(new Date(oldIssueDate.getTime() + SecurityConstants.TOKEN_EXPIRATION_TIMEOUT))
                                  .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET).compact();
 
         final String result = sut.refreshToken(token);

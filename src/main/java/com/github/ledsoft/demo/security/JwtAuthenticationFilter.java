@@ -1,6 +1,7 @@
 package com.github.ledsoft.demo.security;
 
 import com.github.ledsoft.demo.security.model.DemoUserDetails;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -28,8 +29,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             Authentication authResult) throws IOException, ServletException {
         final DemoUserDetails ud = (DemoUserDetails) authResult.getDetails();
         final String token = jwtUtils.generateToken(ud);
-        response.addHeader(SecurityConstants.EXPOSE_HEADERS_HEADER, SecurityConstants.AUTHENTICATION_HEADER);
-        response.addHeader(SecurityConstants.AUTHENTICATION_HEADER, SecurityConstants.JWT_TOKEN_PREFIX + token);
+        response.addHeader(SecurityConstants.EXPOSE_HEADERS_HEADER, HttpHeaders.AUTHORIZATION);
+        response.addHeader(HttpHeaders.AUTHORIZATION, SecurityConstants.JWT_TOKEN_PREFIX + token);
         super.successfulAuthentication(request, response, chain, authResult);
     }
 }

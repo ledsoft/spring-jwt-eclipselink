@@ -1,6 +1,7 @@
 package com.github.ledsoft.demo.security;
 
 import com.github.ledsoft.demo.environment.Generator;
+import com.github.ledsoft.demo.environment.TestSpringConfiguration;
 import com.github.ledsoft.demo.model.User;
 import com.github.ledsoft.demo.security.model.AuthenticationToken;
 import com.github.ledsoft.demo.security.model.DemoUserDetails;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Transactional
-class DefaultAuthenticationProviderTest {
+class DefaultAuthenticationProviderTest extends TestSpringConfiguration {
 
     @Autowired
     private UserService userService;
@@ -58,5 +59,16 @@ class DefaultAuthenticationProviderTest {
         userService.create(user);
         final Authentication auth = new UsernamePasswordAuthenticationToken(user.getUsername(), "invalidPassword");
         assertThrows(BadCredentialsException.class, () -> sut.authenticate(auth));
+    }
+
+    @Test
+    void authenticateRemovesCredentialsFromUserDetailsAfterSuccessfulLogin() {
+        final User user = Generator.generateUser();
+        final String password = user.getPassword();
+        userService.create(user);
+        final Authentication auth = new UsernamePasswordAuthenticationToken(user.getUsername(), password);
+        sut.authenticate(auth);
+        final User result = SecurityUtils.getCurrentUser();
+        assertNull(result.getPassword());
     }
 }

@@ -33,7 +33,7 @@ public class PersistenceConfig extends JpaBaseConfiguration {
     protected Map<String, Object> getVendorProperties() {
         HashMap<String, Object> map = new HashMap<>();
         map.put(PersistenceUnitProperties.WEAVING, "static");
-        map.put(PersistenceUnitProperties.DDL_GENERATION, "create-tables");
+        map.put(PersistenceUnitProperties.DDL_GENERATION, "drop-and-create-tables");
         return map;
     }
 }

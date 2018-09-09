@@ -27,7 +27,7 @@ public class JwtUtils {
         return Jwts.builder().setSubject(userDetails.getUsername())
                    .setId(userDetails.getUser().getId().toString())
                    .setIssuedAt(issued)
-                   .setExpiration(new Date(issued.getTime() + SecurityConstants.SESSION_TIMEOUT))
+                   .setExpiration(new Date(issued.getTime() + SecurityConstants.TOKEN_EXPIRATION_TIMEOUT))
                    .claim(SecurityConstants.JWT_ROLE_CLAIM, mapAuthoritiesToClaim(userDetails.getAuthorities()))
                    .signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET)
                    .compact();
@@ -107,7 +107,7 @@ public class JwtUtils {
         final Claims claims = getClaimsFromToken(token);
         final Date issuedAt = new Date();
         claims.setIssuedAt(issuedAt);
-        claims.setExpiration(new Date(issuedAt.getTime() + SecurityConstants.SESSION_TIMEOUT));
+        claims.setExpiration(new Date(issuedAt.getTime() + SecurityConstants.TOKEN_EXPIRATION_TIMEOUT));
         return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, SecurityConstants.JWT_SECRET)
                    .compact();
     }

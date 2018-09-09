@@ -65,6 +65,10 @@ public class DemoUserDetails implements UserDetails {
         return true;
     }
 
+    public void eraseCredentials() {
+        user.eraseCredentials();
+    }
+
     @Override
     public String toString() {
         return "UserDetails{" +

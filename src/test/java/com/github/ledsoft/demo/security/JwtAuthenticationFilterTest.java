@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -51,18 +52,18 @@ class JwtAuthenticationFilterTest {
     void successfulAuthenticationExposesAuthenticationHeaderToClient() throws Exception {
         final AuthenticationToken token = new AuthenticationToken(new DemoUserDetails(user));
         sut.successfulAuthentication(mockRequest, mockResponse, filterChain, token);
-        assertTrue(mockResponse.containsHeader(SecurityConstants.AUTHENTICATION_HEADER));
+        assertTrue(mockResponse.containsHeader(HttpHeaders.AUTHORIZATION));
         final String value = mockResponse.getHeader(SecurityConstants.EXPOSE_HEADERS_HEADER);
         assertNotNull(value);
-        assertThat(value, containsString(SecurityConstants.AUTHENTICATION_HEADER));
+        assertThat(value, containsString(HttpHeaders.AUTHORIZATION));
     }
 
     @Test
     void successfulAuthenticationAddsJWTToResponse() throws Exception {
         final AuthenticationToken token = new AuthenticationToken(new DemoUserDetails(user));
         sut.successfulAuthentication(mockRequest, mockResponse, filterChain, token);
-        assertTrue(mockResponse.containsHeader(SecurityConstants.AUTHENTICATION_HEADER));
-        final String value = mockResponse.getHeader(SecurityConstants.AUTHENTICATION_HEADER);
+        assertTrue(mockResponse.containsHeader(HttpHeaders.AUTHORIZATION));
+        final String value = mockResponse.getHeader(HttpHeaders.AUTHORIZATION);
         assertNotNull(value);
         assertTrue(value.startsWith(SecurityConstants.JWT_TOKEN_PREFIX));
         final String jwtToken = value.substring(SecurityConstants.JWT_TOKEN_PREFIX.length());

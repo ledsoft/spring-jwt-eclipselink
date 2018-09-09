@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
+@Table(name = "APP_USER")
 public class User implements Serializable {
 
     @Id
@@ -33,6 +34,16 @@ public class User implements Serializable {
     @Basic(optional = false)
     @Column(nullable = false)
     private String password;
+
+    public User() {
+    }
+
+    public User(@NotBlank String firstName, @NotBlank String lastName,
+                @NotBlank String username) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+    }
 
     public Integer getId() {
         return id;

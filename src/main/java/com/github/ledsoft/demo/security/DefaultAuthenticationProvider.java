@@ -40,6 +40,7 @@ public class DefaultAuthenticationProvider implements AuthenticationProvider {
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Provided credentials do not match.");
         }
+        userDetails.eraseCredentials();
         return SecurityUtils.setCurrentUser(userDetails);
     }
 

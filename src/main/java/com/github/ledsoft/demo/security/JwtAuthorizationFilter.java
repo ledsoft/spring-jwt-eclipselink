@@ -6,6 +6,7 @@ import com.github.ledsoft.demo.exception.TokenExpiredException;
 import com.github.ledsoft.demo.rest.model.ErrorInfo;
 import com.github.ledsoft.demo.security.model.DemoUserDetails;
 import com.github.ledsoft.demo.service.security.AppUserDetailsService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -40,7 +41,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        final String authHeader = request.getHeader(SecurityConstants.AUTHENTICATION_HEADER);
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith(SecurityConstants.JWT_TOKEN_PREFIX)) {
             chain.doFilter(request, response);
             return;
@@ -49,6 +50,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         try {
             final DemoUserDetails userDetails = jwtUtils.extractUserInfo(authToken);
             final DemoUserDetails existingDetails = userDetailsService.loadUserByUsername(userDetails.getUsername());
+            existingDetails.eraseCredentials();
             SecurityUtils.setCurrentUser(existingDetails);
             refreshToken(authToken, response);
         } catch (TokenExpiredException e) {
@@ -68,6 +70,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private void refreshToken(String authToken, HttpServletResponse response) {
         final String newToken = jwtUtils.refreshToken(authToken);
-        response.setHeader(SecurityConstants.AUTHENTICATION_HEADER, SecurityConstants.JWT_TOKEN_PREFIX + newToken);
+        response.setHeader(HttpHeaders.AUTHORIZATION, SecurityConstants.JWT_TOKEN_PREFIX + newToken);
     }
 }
