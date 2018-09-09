@@ -1,7 +1,12 @@
 package com.github.ledsoft.demo.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.ledsoft.demo.exception.JwtException;
+import com.github.ledsoft.demo.exception.TokenExpiredException;
+import com.github.ledsoft.demo.rest.model.ErrorInfo;
 import com.github.ledsoft.demo.security.model.DemoUserDetails;
 import com.github.ledsoft.demo.service.security.AppUserDetailsService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -19,12 +24,16 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final JwtUtils jwtUtils;
 
+    private final ObjectMapper objectMapper;
+
     private final AppUserDetailsService userDetailsService;
 
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtUtils jwtUtils,
+                                  ObjectMapper objectMapper,
                                   AppUserDetailsService userDetailsService) {
         super(authenticationManager);
         this.jwtUtils = jwtUtils;
+        this.objectMapper = objectMapper;
         this.userDetailsService = userDetailsService;
     }
 
@@ -37,10 +46,22 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             return;
         }
         final String authToken = authHeader.substring(SecurityConstants.JWT_TOKEN_PREFIX.length());
-        final DemoUserDetails userDetails = jwtUtils.extractUserInfo(authToken);
-        final DemoUserDetails existingDetails = userDetailsService.loadUserByUsername(userDetails.getUsername());
-        SecurityUtils.setCurrentUser(existingDetails);
-        refreshToken(authToken, response);
+        try {
+            final DemoUserDetails userDetails = jwtUtils.extractUserInfo(authToken);
+            final DemoUserDetails existingDetails = userDetailsService.loadUserByUsername(userDetails.getUsername());
+            SecurityUtils.setCurrentUser(existingDetails);
+            refreshToken(authToken, response);
+        } catch (TokenExpiredException e) {
+            // It is important to call set status before writing into response body
+            // Once one writes into response body, it becomes committed and status cannot be set
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            objectMapper.writeValue(response.getOutputStream(), new ErrorInfo(request.getRequestURI(), e.getMessage()));
+            return;
+        } catch (JwtException e) {
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            objectMapper.writeValue(response.getOutputStream(), new ErrorInfo(request.getRequestURI(), e.getMessage()));
+            return;
+        }
 
         chain.doFilter(request, response);
     }

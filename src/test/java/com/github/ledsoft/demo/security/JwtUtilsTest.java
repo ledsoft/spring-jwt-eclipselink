@@ -2,11 +2,11 @@ package com.github.ledsoft.demo.security;
 
 import com.github.ledsoft.demo.environment.Generator;
 import com.github.ledsoft.demo.exception.IncompleteJwtException;
+import com.github.ledsoft.demo.exception.JwtException;
 import com.github.ledsoft.demo.exception.TokenExpiredException;
 import com.github.ledsoft.demo.model.User;
 import com.github.ledsoft.demo.security.model.DemoUserDetails;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.BeforeEach;
@@ -108,7 +108,7 @@ class JwtUtilsTest {
     }
 
     @Test
-    void extractUserInfoThrowsJwtExceptionWhenUserIdentifierIsNotValidUri() {
+    void extractUserInfoThrowsJwtExceptionWhenUserIdentifierIsNotInteger() {
         final String token = Jwts.builder().setSubject(user.getUsername())
                                  .setId("_:123")
                                  .setIssuedAt(new Date())

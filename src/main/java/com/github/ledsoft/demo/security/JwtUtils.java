@@ -1,6 +1,7 @@
 package com.github.ledsoft.demo.security;
 
 import com.github.ledsoft.demo.exception.IncompleteJwtException;
+import com.github.ledsoft.demo.exception.JwtException;
 import com.github.ledsoft.demo.exception.TokenExpiredException;
 import com.github.ledsoft.demo.model.User;
 import com.github.ledsoft.demo.security.model.DemoUserDetails;
@@ -55,7 +56,7 @@ public class JwtUtils {
             user.setUsername(claims.getSubject());
             final String roles = claims.get(SecurityConstants.JWT_ROLE_CLAIM, String.class);
             return new DemoUserDetails(user, mapClaimToAuthorities(roles));
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             throw new JwtException("Unable to parse user identifier from the specified JWT.", e);
         }
     }

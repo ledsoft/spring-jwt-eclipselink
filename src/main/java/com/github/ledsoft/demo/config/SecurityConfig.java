@@ -1,5 +1,6 @@
 package com.github.ledsoft.demo.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.ledsoft.demo.security.*;
 import com.github.ledsoft.demo.service.security.AppUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtUtils jwtUtils;
 
+    private final ObjectMapper objectMapper;
+
     private final AppUserDetailsService userDetailsService;
 
     @Autowired
@@ -43,12 +46,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                           AuthenticationSuccess authenticationSuccessHandler,
                           AuthenticationFailureHandler authenticationFailureHandler,
                           JwtUtils jwtUtils,
+                          ObjectMapper objectMapper,
                           AppUserDetailsService userDetailsService) {
         this.authenticationProvider = authenticationProvider;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.authenticationSuccessHandler = authenticationSuccessHandler;
         this.authenticationFailureHandler = authenticationFailureHandler;
         this.jwtUtils = jwtUtils;
+        this.objectMapper = objectMapper;
         this.userDetailsService = userDetailsService;
     }
 
@@ -63,7 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
             .and().cors().and().csrf().disable()
             .addFilter(authenticationFilter())
-            .addFilter(new JwtAuthorizationFilter(authenticationManager(), jwtUtils, userDetailsService))
+            .addFilter(new JwtAuthorizationFilter(authenticationManager(), jwtUtils, objectMapper, userDetailsService))
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
